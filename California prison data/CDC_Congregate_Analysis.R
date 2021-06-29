@@ -241,6 +241,7 @@ outbreaks_14d_wash_plot <- outbreaks_df14day %>%
   theme(axis.text.x = element_text(angle = 315, hjust = 0, size = 8),
         axis.title = element_text(size = 14),
         strip.background = element_blank(),
+        strip.text = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA)) +
   scale_y_continuous(trans = "log1p",
                      breaks = c(1,10,100,1000)) +
@@ -252,5 +253,5 @@ outbreaks_14d_wash_plot <- outbreaks_df14day %>%
 
 outbreaks_14d_wash_plot
 
-ggsave(here::here("Plots/Outbreaks_5min.png"),
+ggsave(here::here("Plots/Outbreaks_5min_anon.png"),
        height = 4, width = 6, units = "in")
