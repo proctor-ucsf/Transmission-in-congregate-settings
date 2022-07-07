@@ -1,10 +1,11 @@
 library(tidyverse)
 library (gridExtra)
+library(here)
 rm(list=ls())
 
 #############################################################
 
-source('0 - prison_fxns.R')
+source(here('0 - prison_fxns.R'))
 
 #############################################################
 # Number of introduction per day
@@ -32,9 +33,10 @@ g1a <- ggplot(res_intro_arr) +
 (g1a)  
 
 g1b <- ggplot(res_intro_arr %>% filter(SAR %in% seq(0.01, 0.05, 0.01))) +
-  geom_point(aes(x = N_c, y = approx_days, col = as.factor(SAR))) +
+  geom_point(aes(x = N_c, y = approx_days, col = as.factor(SAR), shape = as.factor(SAR))) +
   xlab("Contacts per prisoner") + ylab("Average days\nuntil introduction") + theme(text = element_text(size=20)) +
-  labs(col = "Transmission\nprobability") + theme(legend.title = element_text(size = 12),legend.text = element_text(size = 12))
+  labs(col = "Transmission\nprobability", shape = "Transmission\nprobability") + 
+  theme(legend.title = element_text(size = 12),legend.text = element_text(size = 12))
 (g1b)
 
 #g_intro <- grid.arrange(g1a,g1b)
@@ -58,10 +60,11 @@ res_prob_ob_arr <- tibble(R = R_ARR) %>% group_by (R) %>% do ({
 
 g_prob_ob <- ggplot(res_prob_ob_arr) +
   geom_line(aes(x=R, y = p_ob, col = as.factor(k))) +
+  geom_point(aes(x=R, y = p_ob, col = as.factor(k), shape = as.factor(k))) +
   facet_wrap(~num_intro) +
   xlab("Reproduction number (R)") + ylab("Outbreak\nprobability") +
   #theme(text = element_text(size=20)) +
-  labs(col = "Dispersion\nparameter (k)")
+  labs(col = "Dispersion\nparameter (k)", shape = "Dispersion\nparameter (k)")
 (g_prob_ob)
 ggsave('Figs/prob_ob.jpg',plot = g_prob_ob)
 

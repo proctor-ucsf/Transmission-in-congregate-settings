@@ -17,12 +17,11 @@ NUM_INDEX <- 1
 TIME_STEP <- .2
 INC_TIME <- 3
 INF_TIME <- 7
+PROP_SYMPTOMATIC <- 0.75
 SIM_TIME <- 100 # Days allowed for an introduction to occur
 VAC_TRIGGER <- 10
 
 ################
-
-setwd("/Users/sblumberg/Google Drive/Research/COVID-19/Prison/")
 
 #Simulate clusters that occur after an introduction
 #Outputs is a table theat lists the number of clusters of an individual size, and the numeber that lead to full blow outbreaks (last row of output)
@@ -130,4 +129,9 @@ explore_decarceration <- function(prop_capacity_arr, R_max_arr, prop_factor = 1,
     
     tibble(tot_inf = tot_inf, prop_inf = prop_inf, time_inf_peak = time_inf_peak, max_num_inf = max_num_inf)
   })
+}
+
+gg_color_hue <- function(n) {
+  hues = seq(15, 375, length = n + 1)
+  hcl(h = hues, l = 65, c = 100)[1:n]
 }

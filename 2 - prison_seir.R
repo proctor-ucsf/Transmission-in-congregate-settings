@@ -3,12 +3,13 @@
 # Within each block, transmission events are independent and identical
 # Prisoners do not move from one block to another
 
+library(here)
 library(tidyverse)
 library (gridExtra)
 
 rm(list = ls())
 
-source('0 - prison_fxns.R')
+source(here('0 - prison_fxns.R'))
 
 #############################################################
 
@@ -20,10 +21,16 @@ r1p5_long <- r1p5 %>% pivot_longer(c(names(r2p5)[-1]), names_to = 'Var') %>% mut
 matcher <- tibble(Var = c('num_exp','num_inf','num_susc','num_rec'), compartment = c('Exposed','Infectious','Susceptible','Removed'))
 temp_data <- bind_rows(r2p5_long,r1p5_long) %>% filter(Var != 'num_vac') %>% right_join(matcher)
 
+time_pts <- unique(temp_data$time)
+sparse_time <- time_pts[seq(20,length(time_pts),40)]
+temp_data2 <- temp_data %>% filter(time %in% sparse_time)
+
 ggplot(data = temp_data) +
   geom_line(aes(x=time, y = value, col = compartment)) +
+  geom_point(data = temp_data2, aes(x=time, y = value, col = compartment, shape = compartment)) +
   facet_wrap(~R) +
   xlab("Time (days)") + ylab("Population size") +
+  labs(col = "Infectious\nstate", shape = "Infectious\nstate") +
   theme(legend.title = element_text(size = 20),text = element_text(size=20)) 
 ggsave('Figs/seir_example.jpg')
 
@@ -36,34 +43,41 @@ decarceration_results <- read_csv("Results/decarceration_results.csv")
 # Timing of peak
 # Peak # of beds
 
-p1 <- ggplot(data = decarceration_results) +
-  geom_line(aes(x=1-prop_capacity, y = tot_inf, col = as.factor(R_max))) +
-  ylab ("Total infected") +
-  xlab ("Control") +
-  theme(legend.position = "none") + theme(legend.title = element_text(size = 18),text = element_text(size=18)) 
-(p1)
+# p1 <- ggplot(data = decarceration_results) +
+#   geom_line(aes(x=1-prop_capacity, y = tot_inf, col = as.factor(R_max))) +
+#   geom_point(aes(x=1-prop_capacity, y = tot_inf, col = as.factor(R_max), shape = as.factor(R_max))) +
+#   ylab ("Total infected") +
+#   xlab ("Reduction of susceptible population") +
+#   theme(legend.position = "none") + theme(legend.title = element_text(size = 16),text = element_text(size=16)) 
+# (p1)
 
-p2 <- ggplot(data = decarceration_results) +
-  geom_line(aes(x=1-prop_capacity, y = prop_inf, col = as.factor(R_max))) +
-  ylab ("Proportion infected") +
-  xlab ("Control") +
-  theme(legend.position = "none") + theme(legend.title = element_text(size = 18),text = element_text(size=18)) 
-(p2)
+# p2 <- ggplot(data = decarceration_results) +
+#   geom_line(aes(x=1-prop_capacity, y = prop_inf, col = as.factor(R_max))) +
+#   geom_point(aes(x=1-prop_capacity, y = prop_inf, col = as.factor(R_max), shape = as.factor(R_max))) +
+#   ylab ("Proportion infected") +
+#   xlab ("Reduction of susceptible population") +
+#   theme(legend.position = "none") + theme(legend.title = element_text(size = 16),text = element_text(size=16)) 
+# (p2)
 
 p3 <- ggplot(data = decarceration_results) +
   geom_line(aes(x=1-prop_capacity, y = time_inf_peak, col = as.factor(R_max))) +
-  ylab ("Time of peak infections (days)") +
-  xlab ("Control") +
-  theme(legend.position = "none") + theme(legend.title = element_text(size = 18),text = element_text(size=18)) 
-(p3)
+  geom_point(aes(x=1-prop_capacity, y = time_inf_peak, col = as.factor(R_max), shape = as.factor(R_max))) +
+  ylab ("Time of peak\ninfections (days)") +
+  xlab(expression('Degree of control,' ~ gamma))  +
+  labs(tag = "A)") +
+  theme(legend.position = "none") + theme(legend.title = element_text(size = 16),text = element_text(size=16)) 
+# (p3)
 
 p4 <- ggplot(data = decarceration_results) +
   geom_line(aes(x=1-prop_capacity, y = max_num_inf, col = as.factor(R_max))) +
-  ylab ("Maximum infected at once") +
-  xlab ("Control") +
-  labs(col = "Reproduction\nnumber") + theme(legend.title = element_text(size = 10), legend.text = element_text(size = 10), text = element_text(size=18)) +
-  theme(legend.position = c(0.80, 0.70))
-(p4)
+  geom_point(aes(x=1-prop_capacity, y = max_num_inf, col = as.factor(R_max), shape = as.factor(R_max))) +
+  ylab ("Maximum infected\nat once") +
+  xlab(expression('Degree of control,' ~ gamma))  +
+  labs(col = "Baseline R", shape = "Baseline R", tag = "B)") + 
+  theme(legend.title = element_text(size = 10), legend.text = element_text(size = 10), text = element_text(size=16)) +
+  theme(legend.position = c(0.8, 0.9), legend.direction = 'horizontal')
+# (p4)
 
-p_all <- grid.arrange(p1,p2,p3,p4)
+p_all <- grid.arrange(p3,p4)
 ggsave("Figs/seir_res.jpg",plot = p_all)
+ggsave("Figs/TIFF/Figure 4.eps",plot = p_all, width=2880, units="px", dpi=300)
